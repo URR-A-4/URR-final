@@ -9,9 +9,147 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      chat_channels: {
+        Row: {
+          channel_id: number
+          channel_name: string | null
+          created_at: string
+          owner_id: string
+        }
+        Insert: {
+          channel_id?: number
+          channel_name?: string | null
+          created_at?: string
+          owner_id: string
+        }
+        Update: {
+          channel_id?: number
+          channel_name?: string | null
+          created_at?: string
+          owner_id?: string
+        }
+        Relationships: []
+      }
+      chat_messages: {
+        Row: {
+          channel_id: number
+          content: Json | null
+          created_at: string
+          message_id: number
+          user_id: string
+        }
+        Insert: {
+          channel_id: number
+          content?: Json | null
+          created_at?: string
+          message_id?: number
+          user_id: string
+        }
+        Update: {
+          channel_id?: number
+          content?: Json | null
+          created_at?: string
+          message_id?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      chat_subscribe: {
+        Row: {
+          channel_id: number
+          chat_subscribe_id: number
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          channel_id: number
+          chat_subscribe_id?: number
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          channel_id?: number
+          chat_subscribe_id?: number
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      order: {
+        Row: {
+          created_at: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      products: {
+        Row: {
+          category: string | null
+          cost: number | null
+          created_at: string
+          detail_img: string | null
+          end: string | null
+          id: string
+          main_img: string | null
+          price: number | null
+          product_count: number | null
+          start: string | null
+          text: string | null
+          title: string | null
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          cost?: number | null
+          created_at?: string
+          detail_img?: string | null
+          end?: string | null
+          id: string
+          main_img?: string | null
+          price?: number | null
+          product_count?: number | null
+          start?: string | null
+          text?: string | null
+          title?: string | null
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          cost?: number | null
+          created_at?: string
+          detail_img?: string | null
+          end?: string | null
+          id?: string
+          main_img?: string | null
+          price?: number | null
+          product_count?: number | null
+          start?: string | null
+          text?: string | null
+          title?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       users: {
         Row: {
           account_link: string | null
+          address: string | null
           approve: boolean | null
           created_at: string
           email: string | null
@@ -22,16 +160,18 @@ export type Database = {
         }
         Insert: {
           account_link?: string | null
+          address?: string | null
           approve?: boolean | null
           created_at?: string
           email?: string | null
-          id?: string
+          id: string
           nickname?: string | null
           profile_url?: string | null
           role?: string | null
         }
         Update: {
           account_link?: string | null
+          address?: string | null
           approve?: boolean | null
           created_at?: string
           email?: string | null
@@ -40,7 +180,15 @@ export type Database = {
           profile_url?: string | null
           role?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "users_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
