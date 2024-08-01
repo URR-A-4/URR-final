@@ -1,9 +1,17 @@
 "use client";
 
-type ParamsType = { postId: string };
+import ProductInquiry from "@/components/products/ProductInquiry";
+import Detail from "@/components/products/detail/Detail";
+import { useState } from "react";
+
+type ParamsType = { id: string };
 
 const ProductsDetail = ({ params }: { params: ParamsType }) => {
-  return <div>page</div>;
+  return (
+    <div>
+      <Detail params={params} />
+    </div>
+  );
 };
 
 export default ProductsDetail;

@@ -9,6 +9,48 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      cart: {
+        Row: {
+          amount: number | null
+          id: string
+          name: string | null
+          product_id: string | null
+          quantity: number | null
+          user_id: string | null
+        }
+        Insert: {
+          amount?: number | null
+          id?: string
+          name?: string | null
+          product_id?: string | null
+          quantity?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number | null
+          id?: string
+          name?: string | null
+          product_id?: string | null
+          quantity?: number | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cart_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cart_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chat_channels: {
         Row: {
           channel_id: number
@@ -75,30 +117,137 @@ export type Database = {
         }
         Relationships: []
       }
+      comments: {
+        Row: {
+          content: string | null
+          created_at: string
+          id: string
+          product_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          product_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          product_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order: {
+        Row: {
+          address: string | null
+          created_at: string
+          name: string | null
+          orderCount: number
+          orderName: string
+          paymentId: string
+          phoneNumber: number | null
+          price: number
+          userId: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          name?: string | null
+          orderCount: number
+          orderName: string
+          paymentId: string
+          phoneNumber?: number | null
+          price: number
+          userId: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          name?: string | null
+          orderCount?: number
+          orderName?: string
+          paymentId?: string
+          phoneNumber?: number | null
+          price?: number
+          userId?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_userId_fkey"
+            columns: ["userId"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_review: {
         Row: {
           created_at: string
           id: string
+          product_id: string | null
+          review_content: string | null
+          review_images: string[] | null
+          review_score: number | null
+          user_nickname: string | null
         }
         Insert: {
           created_at?: string
           id?: string
+          product_id?: string | null
+          review_content?: string | null
+          review_images?: string[] | null
+          review_score?: number | null
+          user_nickname?: string | null
         }
         Update: {
           created_at?: string
           id?: string
+          product_id?: string | null
+          review_content?: string | null
+          review_images?: string[] | null
+          review_score?: number | null
+          user_nickname?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "product_review_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       products: {
         Row: {
           category: string | null
           cost: number | null
           created_at: string
-          detail_img: string | null
+          detail_img: string[] | null
           end: string | null
           id: string
           main_img: string | null
+          nickname: string | null
           price: number | null
           product_count: number | null
           start: string | null
@@ -110,10 +259,11 @@ export type Database = {
           category?: string | null
           cost?: number | null
           created_at?: string
-          detail_img?: string | null
+          detail_img?: string[] | null
           end?: string | null
           id: string
           main_img?: string | null
+          nickname?: string | null
           price?: number | null
           product_count?: number | null
           start?: string | null
@@ -125,10 +275,11 @@ export type Database = {
           category?: string | null
           cost?: number | null
           created_at?: string
-          detail_img?: string | null
+          detail_img?: string[] | null
           end?: string | null
           id?: string
           main_img?: string | null
+          nickname?: string | null
           price?: number | null
           product_count?: number | null
           start?: string | null
@@ -154,7 +305,9 @@ export type Database = {
           created_at: string
           email: string | null
           id: string
-          nickname: string | null
+          name: string | null
+          nickname: string
+          phonenum: number | null
           profile_url: string | null
           role: string | null
         }
@@ -165,7 +318,9 @@ export type Database = {
           created_at?: string
           email?: string | null
           id: string
-          nickname?: string | null
+          name?: string | null
+          nickname: string
+          phonenum?: number | null
           profile_url?: string | null
           role?: string | null
         }
@@ -176,7 +331,9 @@ export type Database = {
           created_at?: string
           email?: string | null
           id?: string
-          nickname?: string | null
+          name?: string | null
+          nickname?: string
+          phonenum?: number | null
           profile_url?: string | null
           role?: string | null
         }

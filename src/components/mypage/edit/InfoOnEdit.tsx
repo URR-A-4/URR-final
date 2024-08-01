@@ -1,11 +1,19 @@
 "use client";
 
+import { useState } from "react";
 import InfoOnEditAddress from "./InfoOnEditAddress";
 import { useUserData } from "@/hooks/useUserData";
 
 const InfoOnEdit = () => {
   const { data: user } = useUserData();
-  console.log(user);
+
+  const [address, setAddress] = useState<string | null>(null);
+  const [profile, setProfile] = useState<string | null>(null);
+  const [nickname, setNickname] = useState<string | null>(null);
+  const [name, setName] = useState<string | null>(null);
+  const [phonenum, setPhonenum] = useState<string | null>(null);
+
+  const updateHandler = async () => {};
 
   return (
     <>
@@ -38,10 +46,22 @@ const InfoOnEdit = () => {
         </div>
         <div className="border border-black bg-slate-400">
           <p>이름</p>
-          <input type="text" id="name" />
+          <input type="text" id="name" placeholder="이름을 입력해주세요" defaultValue={user ? user.name : ""} />
         </div>
-        <InfoOnEditAddress />
+        <div className="border border-black bg-slate-400">
+          <p>휴대폰</p>
+          <input
+            type="text"
+            id="phoneNumber"
+            placeholder="휴대폰 번호를 입력해주세요"
+            value={user ? user.phonenum : null}
+          />
+        </div>
+        <InfoOnEditAddress setAddress={setAddress} />
       </section>
+      <div>
+        <button>완료</button>
+      </div>
     </>
   );
 };
