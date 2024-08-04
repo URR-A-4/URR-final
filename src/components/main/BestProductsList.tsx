@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import defaultImg from "../../../public/images/default.png";
-import { PostData } from "./Main";
+import { Product } from "../../../types/common";
+import defaultImg from "../../../public/images/default.png"
 
-function BestProductsList({ productsList }: { productsList: PostData[] }) {
+function BestProductsList({ productsList }: { productsList: Product[] }) {
   return (
     <>
       <div className="w-full h-auto mx-auto p-5">
@@ -29,9 +29,9 @@ function BestProductsList({ productsList }: { productsList: PostData[] }) {
                       <Image
                         src={list.main_img || defaultImg}
                         alt="img"
-                        layout="fill"
-                        objectFit="cover"
-                        className="rounded-md"
+                        fill
+                        sizes="130px"
+                        className="rounded-md object-cover"
                       />
                     </div>
                     <p className="text-[#B2B5B8] text-sm">{list.nickname}</p>

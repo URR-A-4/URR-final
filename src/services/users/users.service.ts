@@ -56,6 +56,17 @@ export const userLogin = async ({ email, password }: { email: string; password: 
   }
 };
 
+export const userLogout = async () => {
+  try {
+    const res = await fetch("/api/auth/logout", {
+      method: "DELETE"
+    });
+    return res.status;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 export const infUserApprove = async () => {
   try {
     const response = await fetch("/api/auth/users/infuser");
@@ -81,4 +92,10 @@ export const updateUserApprove = async (userId: string) => {
   } catch (error) {
     console.log(error);
   }
+};
+
+export const nicknameCheck = async (nickname: string) => {
+  const response = await fetch(`/api/auth/signup/nicknamecheck?nickname=${nickname}`);
+  const data = await response.json();
+  return data;
 };

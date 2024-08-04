@@ -11,30 +11,70 @@ export type Database = {
     Tables: {
       cart: {
         Row: {
-          amount: number | null
-          id: string
-          name: string | null
-          product_id: string | null
-          quantity: number | null
-          user_id: string | null
+          amount: number
+          created_at: string
+          id: number
+          main_img: string
+          name: string
+          nickname: string
+          product_id: string
+          quantity: number
+          user_id: string
         }
+          amount: number;
+          created_at: string;
+          id: number;
+          main_img: string;
+          name: string;
+          nickname: string;
+          product_id: string;
+          quantity: number;
+          user_id: string;
+        };
         Insert: {
-          amount?: number | null
-          id?: string
-          name?: string | null
-          product_id?: string | null
-          quantity?: number | null
-          user_id?: string | null
+          amount: number
+          created_at?: string
+          id?: number
+          main_img: string
+          name: string
+          nickname: string
+          product_id: string
+          quantity: number
+          user_id: string
         }
         Update: {
-          amount?: number | null
-          id?: string
-          name?: string | null
-          product_id?: string | null
-          quantity?: number | null
-          user_id?: string | null
+          amount?: number
+          created_at?: string
+          id?: number
+          main_img?: string
+          name?: string
+          nickname?: string
+          product_id?: string
+          quantity?: number
+          user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "cart_amount_fkey"
+            columns: ["amount"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["price"]
+          },
+          {
+            foreignKeyName: "cart_main_img_fkey"
+            columns: ["main_img"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["main_img"]
+          },
+          {
+            foreignKeyName: "cart_name_fkey"
+            columns: ["name"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["title"]
+          },
           {
             foreignKeyName: "cart_product_id_fkey"
             columns: ["product_id"]
@@ -78,6 +118,7 @@ export type Database = {
           content: Json | null
           created_at: string
           message_id: number
+          nickname: string | null
           user_id: string
         }
         Insert: {
@@ -85,6 +126,7 @@ export type Database = {
           content?: Json | null
           created_at?: string
           message_id?: number
+          nickname?: string | null
           user_id: string
         }
         Update: {
@@ -92,6 +134,7 @@ export type Database = {
           content?: Json | null
           created_at?: string
           message_id?: number
+          nickname?: string | null
           user_id?: string
         }
         Relationships: []
@@ -122,6 +165,7 @@ export type Database = {
           content: string | null
           created_at: string
           id: string
+          private: boolean | null
           product_id: string | null
           user_id: string | null
         }
@@ -129,6 +173,7 @@ export type Database = {
           content?: string | null
           created_at?: string
           id?: string
+          private?: boolean | null
           product_id?: string | null
           user_id?: string | null
         }
@@ -136,6 +181,7 @@ export type Database = {
           content?: string | null
           created_at?: string
           id?: string
+          private?: boolean | null
           product_id?: string | null
           user_id?: string | null
         }
@@ -161,33 +207,33 @@ export type Database = {
           address: string | null
           created_at: string
           name: string | null
-          orderCount: number
-          orderName: string
           paymentId: string
           phoneNumber: number | null
           price: number
+          product_list: Json[] | null
+          request: string | null
           userId: string
         }
         Insert: {
           address?: string | null
           created_at?: string
           name?: string | null
-          orderCount: number
-          orderName: string
           paymentId: string
           phoneNumber?: number | null
           price: number
+          product_list?: Json[] | null
+          request?: string | null
           userId: string
         }
         Update: {
           address?: string | null
           created_at?: string
           name?: string | null
-          orderCount?: number
-          orderName?: string
           paymentId?: string
           phoneNumber?: number | null
           price?: number
+          product_list?: Json[] | null
+          request?: string | null
           userId?: string
         }
         Relationships: [
@@ -208,6 +254,7 @@ export type Database = {
           review_content: string | null
           review_images: string[] | null
           review_score: number | null
+          title: string | null
           user_nickname: string | null
         }
         Insert: {
@@ -217,6 +264,7 @@ export type Database = {
           review_content?: string | null
           review_images?: string[] | null
           review_score?: number | null
+          title?: string | null
           user_nickname?: string | null
         }
         Update: {
@@ -226,29 +274,22 @@ export type Database = {
           review_content?: string | null
           review_images?: string[] | null
           review_score?: number | null
+          title?: string | null
           user_nickname?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "product_review_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       products: {
         Row: {
           category: string | null
-          cost: number | null
+          cost: number
           created_at: string
           detail_img: string[] | null
           end: string | null
           id: string
           main_img: string | null
           nickname: string | null
-          price: number | null
+          price: number
           product_count: number | null
           start: string | null
           text: string | null
@@ -257,14 +298,14 @@ export type Database = {
         }
         Insert: {
           category?: string | null
-          cost?: number | null
+          cost: number
           created_at?: string
           detail_img?: string[] | null
           end?: string | null
           id: string
           main_img?: string | null
           nickname?: string | null
-          price?: number | null
+          price: number
           product_count?: number | null
           start?: string | null
           text?: string | null
@@ -273,14 +314,14 @@ export type Database = {
         }
         Update: {
           category?: string | null
-          cost?: number | null
+          cost?: number
           created_at?: string
           detail_img?: string[] | null
           end?: string | null
           id?: string
           main_img?: string | null
           nickname?: string | null
-          price?: number | null
+          price?: number
           product_count?: number | null
           start?: string | null
           text?: string | null

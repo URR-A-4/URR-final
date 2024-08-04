@@ -13,22 +13,6 @@ import { useUserData } from "@/hooks/useUserData";
 import { useMutation } from "@tanstack/react-query";
 
 export type DetailedImgGroup = { file: File | null; url: string };
-interface PostData {
-  id: string;
-  start: string;
-  end: string;
-  cost: string;
-  price: string;
-  product_count: string;
-  title: string;
-  text: string;
-  category: string;
-  main_img: string;
-  detail_img: string[];
-  user_id : string;
-  created_at: string;
-  nickname: string;
-}
 
 function ProductUpload() {
   const supabase = createClient();
@@ -39,11 +23,11 @@ function ProductUpload() {
   const priceRef = useRef<HTMLInputElement>(null);
   const productCountRef = useRef<HTMLInputElement>(null);
   const titleRef = useRef<HTMLInputElement>(null);
+  ``;
   const textRef = useRef<HTMLTextAreaElement>(null);
   const [detailImg, setDetailImg] = useState<DetailedImgGroup[]>([]);
   const [mainImg, setMainImg] = useState<File | null>(null);
   const [uploadedMainImg, setUploadedMainImg] = useState("");
-  const [uploadedDetailImg, setUploadedDetailImg] = useState<DetailedImgGroup[]>([]);
   const { data: user } = useUserData();
   const router = useRouter();
   const { id } = useParams();
@@ -53,25 +37,23 @@ function ProductUpload() {
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    const data: PostData[] = await response.json();
-    const post: PostData | undefined = data.find((post) => post.id === id);
+    const data: Product[] = await response.json();
+    const post = data.find((post) => post.id === id);
+
     if (!post) {
       return;
     }
-    if (startDateRef.current) startDateRef.current.value = post.start;
-    if (endDateRef.current) endDateRef.current.value = post.end;
-    if (costRef.current) costRef.current.value = post.cost;
-    if (priceRef.current) priceRef.current.value = post.price;
-    if (productCountRef.current) productCountRef.current.value = post.product_count;
-    if (titleRef.current) titleRef.current.value = post.title;
-    if (textRef.current) textRef.current.value = post.text;
-    setRadioCheckedValue(post.category);
-    setUploadedMainImg(post.main_img);
-    const structuredArr = post.detail_img.map((a: string) => ({
-      file: null,
-      url: a
-    }));
-    setUploadedDetailImg(structuredArr);
+    if (startDateRef.current) startDateRef.current.value = post.start || "";
+    if (endDateRef.current) endDateRef.current.value = post.end || "";
+    if (costRef.current) costRef.current.value = post.cost?.toString() || "";
+    if (priceRef.current) priceRef.current.value = post.price?.toString() || "";
+    if (productCountRef.current) productCountRef.current.value = post.product_count?.toString() || "";
+    if (titleRef.current) titleRef.current.value = post.title || "";
+    if (textRef.current) textRef.current.value = post.text || "";
+    setRadioCheckedValue(post.category || "");
+    setUploadedMainImg(post.main_img || "");
+    const detailImgGroup = post.detail_img?.map<DetailedImgGroup>((imgUrl:string) => ({ file: null, url: imgUrl }));
+    setDetailImg(detailImgGroup || []);
   };
 
   useEffect(() => {
@@ -79,28 +61,6 @@ function ProductUpload() {
       getPostData();
     }
   }, [id]);
-
-  const savePost = async (data: PostData) => {
-    const response = await fetch("/api/products", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    return response.json();
-  };
-
-  const editPost = async (data: PostData) => {
-    const response = await fetch("/api/products", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    return response.json();
-  };
-
-  const { mutate: saveMutation } = useMutation<Product, unknown, PostData>({
-    mutationFn: (data: PostData) => (id === "new" ? savePost(data) : editPost(data)),
-  });
 
   const uploadMainImg = async (postId: string): Promise<string | null> => {
     if (!mainImg) {
@@ -117,7 +77,10 @@ function ProductUpload() {
     return res.data.publicUrl;
   };
 
-  const uploadDetailImages = async (postId: string): Promise<string[]> => {
+  const uploadDetailImages = async (postId: string): Promise<string[] | null> => {
+    if (!detailImg.length) {
+      return null;
+    }
     const uploads = detailImg.map(async (detail) => {
       if (!detail.file) return detail.url;
 
@@ -137,24 +100,48 @@ function ProductUpload() {
     return resList.filter((url): url is string => url !== null);
   };
 
+  const savePost = async (data: Product) => {
+    const response = await fetch("/api/products", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+    return response.json();
+  };
+
+  const editPost = async (data: Product) => {
+    const response = await fetch("/api/products", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+    return response.json();
+  };
+
+  const { mutate: saveMutation } = useMutation<Product, unknown, Product>({
+    mutationFn: (data) => (id === "new" ? savePost(data) : editPost(data))
+  });
+
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!user) {
       return;
     }
     const postId = uuidv4();
-    const mainImgId = (await uploadMainImg(postId)) || "";
+    const mainImgId = (await uploadMainImg(postId)) || uploadedMainImg;
     const detailImgId = await uploadDetailImages(postId);
 
-    const productData: PostData = {
+    const productData: Product = {
       category: radioCheckedValue,
-      start: startDateRef.current?.value || "",
-      end: endDateRef.current?.value || "",
-      cost: costRef.current?.value || "",
-      price: priceRef.current?.value || "",
-      product_count: productCountRef.current?.value || "",
-      title: titleRef.current?.value || "",
-      text: textRef.current?.value || "",
+      start: startDateRef.current?.value || null,
+      end: endDateRef.current?.value || null,
+      // cost: costRef.current?.value ? parseInt(costRef.current?.value) : null,
+      cost: parseInt(costRef.current?.value!),
+      // price: priceRef.current?.value ? parseInt(priceRef.current?.value) : null,
+      price: parseInt(priceRef.current?.value!),
+      product_count: productCountRef.current?.value ? parseInt(productCountRef.current?.value) : null,
+      title: titleRef.current?.value || null,
+      text: textRef.current?.value || null,
       detail_img: detailImgId,
       main_img: mainImgId,
       user_id: user.id,
@@ -171,28 +158,25 @@ function ProductUpload() {
       !productData.price ||
       !productData.product_count ||
       !productData.title ||
-      !productData.text ||
-      !productData.detail_img ||
-      !productData.main_img
+      !productData.text
     ) {
       alert("상품 정보를 입력해주세요.");
       return;
-    } 
-    saveMutation(productData);
-    router.push("/products/list");
+    }
 
-    // const { data, error } = await supabase.from("products").insert([productData]).select();
-    // if (error) {
-    //   console.error("Error inserting data:", error);
-    // } else {
-    //   saveMutation(productData);
-    //   router.push("/products/list");
-    // }
+    const { data, error } = await supabase.from("products").upsert([productData]).select();
+    if (error) {
+      console.error("Error inserting data:", error);
+    } else {
+      console.log("Data inserted:", data);
+      saveMutation(productData);
+      router.push("/products/list");
+    }
   };
 
   return (
     <form onSubmit={onSubmit}>
-      <div className="p-5 max-w-[1200px] mx-auto grid gap-5">
+      <div className="max-w-[1200px] mx-auto grid gap-3 bg-[#F4F4F4]">
         <Category radioCheckedValue={radioCheckedValue} setRadioCheckedValue={setRadioCheckedValue} />
         <PricePeriod
           startDateRef={startDateRef}
@@ -207,12 +191,11 @@ function ProductUpload() {
           detailImg={detailImg}
           setDetailImg={setDetailImg}
           uploadedMainImg={uploadedMainImg}
-          uploadedDetailImg={uploadedDetailImg}
           setMainImg={setMainImg}
         />
         <div className="flex justify-end">
-          <button type="submit" className="bg-blue-500 text-white p-2 rounded-sm my-5 ">
-            등록하기
+          <button type="submit" className="bg-blue-500 text-white p-2 rounded-sm my-2 mr-5">
+            {id === "new" ? "등록하기" : "수정완료"}
           </button>
         </div>
       </div>

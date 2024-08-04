@@ -3,10 +3,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import logo from "../../../../public/logo/title_logo.png";
-import backIcon from "../../../../public/icon/backIcon.png";
-import searchIcon from "../../../../public/icon/searchIcon.png";
-import cartIcon from "../../../../public/icon/cartIcon.png";
-import xIcon from "../../../../public/icon/xIcon.png";
+import BackIcon from "../../../../public/icon/backIcon.svg";
+import SearchIcon from "../../../../public/icon/searchIcon.svg";
+import CartIcon from "../../../../public/icon/cartIcon.svg";
+import XIcon from "../../../../public/icon/xIcon.svg";
 
 const Header = () => {
   const pathname = usePathname();
@@ -20,6 +20,9 @@ const Header = () => {
   const SIGN_UP = pathname === "/signup";
   const PRODUCTS_UPLOAD = pathname === "/products/upload";
   const SEARCH = pathname === "/search";
+  const PAYMENT = pathname === "/payment";
+  const CHATLIST = pathname === "/chatlist";
+  const INFLUENCER = pathname === "/influencer";
 
   // header 타이틀
   let headerTitle;
@@ -29,11 +32,13 @@ const Header = () => {
     headerTitle = "공구 구매 상품 등록";
   } else if (SEARCH) {
     headerTitle = "검색";
+  } else if (PAYMENT) {
+    headerTitle = "결제하기";
   }
 
   // header 왼쪽 아이콘
   let leftIcon;
-  if (HOME || ADMIN || MY_PAGE || PRODUCTS_LIST) {
+  if (HOME || ADMIN || MY_PAGE || PRODUCTS_LIST || CHATLIST || INFLUENCER) {
     leftIcon = (
       <Link href={"/"}>
         <Image src={logo} alt="urr_logo" width={62} />
@@ -44,7 +49,7 @@ const Header = () => {
   } else {
     leftIcon = (
       <button onClick={() => router.back()}>
-        <Image src={backIcon} alt="뒤로가기 버튼" />
+        <BackIcon />
       </button>
     );
   }
@@ -55,23 +60,23 @@ const Header = () => {
     rightIcon = (
       <>
         <Link href={"/search"}>
-          <Image src={searchIcon} alt="검색" />
+          <SearchIcon />
         </Link>
         <Link href={"/cart"}>
-          <Image src={cartIcon} alt="장바구니" />
+          <CartIcon />
         </Link>
       </>
     );
-  } else if (PRODUCTS_LIST || MY_PAGE) {
+  } else if (PRODUCTS_LIST || MY_PAGE || CHATLIST || INFLUENCER) {
     rightIcon = (
       <Link href={"/cart"}>
-        <Image src={cartIcon} alt="장바구니" />
+        <CartIcon />
       </Link>
     );
-  } else if (SIGN_UP || LOGIN || SEARCH) {
+  } else if (SIGN_UP || LOGIN || SEARCH || PAYMENT) {
     rightIcon = (
       <Link href={"/"}>
-        <Image src={xIcon} alt="홈" />
+        <XIcon />
       </Link>
     );
   }
@@ -81,7 +86,7 @@ const Header = () => {
       <header className="flex flex-row justify-between items-center h-12 w-[90%] mx-auto shrink-0">
         <div>{leftIcon}</div>
         <div className=" font-semibold text-xl">{headerTitle}</div>
-        <div className="flex">{rightIcon}</div>
+        <div className="flex gap-2">{rightIcon}</div>
       </header>
       {/* <div className="bg-gray-300 flex-col h-[100px] w-full fixed">
         <div className="flex flex-col border border-red-500 w-[90%] mx-auto">
