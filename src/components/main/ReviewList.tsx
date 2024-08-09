@@ -5,6 +5,10 @@ import defaultImg from "../../../public/images/default.png";
 import { Review } from "../../../types/common";
 import { useEffect, useState } from "react";
 import { createClient } from "../../../supabase/client";
+import fullStar from "../../../public/icon/full_star.png";
+import halfStar from "../../../public/icon/half_star.png";
+import InfluencerIcon from "../../../public/icon/influencer.svg";
+import Link from "next/link";
 
 function ReviewList() {
   const [reviewData, setReviewData] = useState<Review[]>([]);
@@ -31,23 +35,6 @@ function ReviewList() {
     return `${year}.${month}.${day}`;
   };
 
-  const typeClass = (typeScore: number): string => {
-    switch (typeScore) {
-      case 1:
-        return "⭐";
-      case 2:
-        return "⭐⭐";
-      case 3:
-        return "⭐⭐⭐";
-      case 4:
-        return "⭐⭐⭐⭐";
-      case 5:
-        return "⭐⭐⭐⭐⭐";
-      default:
-        return "";
-    }
-  };
-
   return (
     <div className="w-full mx-auto p-5">
       <h2 className="font-bold mb-5 text-xl">후기</h2>
@@ -58,20 +45,36 @@ function ReviewList() {
           reviewData.map((review) => (
             <div key={review.id} className="flex gap-3">
               <div className="w-[130px] h-[130px] relative">
-                <Image
-                  src={Array.isArray(review.review_images) ? review.review_images[0] : defaultImg}
-                  alt="img"
-                  fill
-                  sizes="130px"
-                  className="rounded-md object-cover"
-                />
+                <Link href={`/products/detail/${review.product_id}`}>
+                  <Image
+                    src={Array.isArray(review.review_images) ? review.review_images[0] : defaultImg}
+                    alt="img"
+                    fill
+                    sizes="130px"
+                    className="rounded-md object-cover"
+                  />
+                </Link>
               </div>
-              <div className="flex flex-col w-1/2">
-                <p className="font-bold">{review.title}</p>
-                <p>{review.review_content}</p>
-                <p className="text-xs mt-auto">{typeClass(review.review_score as number)}</p>
+              <div className="flex-col w-[60%]">
+                <div className="flex text-[#989C9F] gap-1">
+                  <div className="mt-[2px]">
+                    <InfluencerIcon />
+                  </div>
+                  <p className="w-[100%] truncate">
+                    {review.inf_name} <span className="text-[#E7E8E9]">|</span> {review.title}
+                  </p>
+                </div>
+                <p className="text-[#1B1C1D] font-medium mb-2">{review.review_content}</p>
+                <div className="flex items-center">
+                  {Array(Math.floor(review.review_score!))
+                    .fill(1)
+                    .map((_, index) => (
+                      <Image key={index} src={fullStar.src} width={20} height={20} alt="fullStar" />
+                    ))}
+                  {review.review_score! % 1 !== 0 && <Image src={halfStar.src} width={20} height={20} alt="halfStar" />}
+                </div>
                 <p className="text-xs text-gray-400">
-                  {review.user_nickname} | {formatDate(review.created_at)}
+                  {review.user_nickname} <span className="text-[#E7E8E9]">|</span> {formatDate(review.created_at)}
                 </p>
               </div>
             </div>

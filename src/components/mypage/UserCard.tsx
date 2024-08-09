@@ -2,12 +2,13 @@
 
 import { useUserData } from "@/hooks/useUserData";
 import { userLogout } from "@/services/users/users.service";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import DefaultImage from "../../../public/images/default.png";
 
 const UserCard = () => {
   const { data: user } = useUserData();
-
   const router = useRouter();
 
   const logoutHandler = async () => {
@@ -20,18 +21,27 @@ const UserCard = () => {
       return;
     }
     router.push("/");
+    location.reload();
+    return;
   };
 
+  const commonUser = "absolute rounded-[16px] overflow-hidden border border-transparent p-[4px] object-cover";
+  const adminUser = "absolute rounded-[16px] overflow-hidden border border-[#2267CE] p-[4px] object-cover";
+  const infUser =
+    "absolute rounded-[16px] overflow-hidden border border-transparent p-[4px] object-cover gradient-border";
+
   return (
-    <div className="flex h-[125px] w-full gap-[12px] p-[16px] pt-[24px] pb-[24px]">
-      <img
-        className="block h-[77px] rounded-[4px]"
-        src={
-          user?.profile_url ||
-          "https://static.vecteezy.com/system/resources/thumbnails/010/260/479/small/default-avatar-profile-icon-of-social-media-user-in-clipart-style-vector.jpg"
-        }
-        alt="샘플이미지"
-      />
+    <div className="flex w-full gap-[12px] pb-[16px] pt-[4px] px-[24px]">
+      <div className="w-[80px] h-[80px] rounded-[16px] relative">
+        <Image
+          src={user?.profile_url || DefaultImage}
+          alt="profile_image"
+          sizes="80px"
+          fill
+          priority
+          className={user?.role === "인플루언서" ? infUser : user?.role === "관리자" ? adminUser : commonUser}
+        />
+      </div>
       <div className="w-[calc(100%-80px)] flex flex-col justify-between text-[12px]">
         <div>
           <div className="flex justify-between items-center">

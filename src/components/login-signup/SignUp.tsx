@@ -3,6 +3,7 @@
 import { userSignUp } from "@/services/users/users.service";
 import { useRef, useState } from "react";
 import { nicknameCheck } from "@/services/users/users.service";
+import { useRouter } from "next/navigation";
 
 interface SignUpProps {
   confirmRef: string | undefined;
@@ -22,11 +23,15 @@ export default function SignUp({ confirmRef, selectUser }: SignUpProps) {
   const [passwordMessage, setPasswordMessage] = useState<string>("");
   const [passwordConfirmMessage, setPasswordConfirmMessage] = useState<string>("");
   const [nicknameConfirmMessage, setNicknameConfirmMessage] = useState<string>("");
+  const [emailConfirmMessage, setEmailConfirmMessage] = useState<string>("");
 
   // 유효성 검사
   const [isPassword, setIsPassword] = useState<boolean>(false);
   const [isPasswordConfirm, setIsPasswordConfirm] = useState<boolean>(false);
   const [isNicknameConfirm, setIsNicknameConfirm] = useState<boolean>(false);
+  const [isEmailConfirm, setIsEmailConfirm] = useState<boolean>(false);
+
+  const router = useRouter();
 
   const onSignUpHandler = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -44,7 +49,10 @@ export default function SignUp({ confirmRef, selectUser }: SignUpProps) {
       if (email && password && nickname && confirm) {
         try {
           await userSignUp({ email, password, nickname, confirm, selectUser, approve: false });
+          alert("회원가입이 완료되었습니다!");
+          router.push("/");
         } catch (error) {
+          alert("회원가입 실패");
           console.log(error);
         }
       }
@@ -52,7 +60,10 @@ export default function SignUp({ confirmRef, selectUser }: SignUpProps) {
       if (email && password && nickname) {
         try {
           await userSignUp({ email, password, nickname, selectUser, approve: false });
+          alert("회원가입이 완료되었습니다!");
+          router.push("/");
         } catch (error) {
+          alert("회원가입 실패");
           console.log(error);
         }
       }
@@ -64,7 +75,6 @@ export default function SignUp({ confirmRef, selectUser }: SignUpProps) {
     const nickname = nicknameRef.current?.value;
     if (nickname) {
       const overlapNickname = await nicknameCheck(nickname);
-      // console.log(overlapNickname);
       if (overlapNickname.length !== 0) {
         setNicknameConfirmMessage("이미 사용중인 닉네임입니다");
         setIsNicknameConfirm(false);
@@ -75,13 +85,28 @@ export default function SignUp({ confirmRef, selectUser }: SignUpProps) {
     }
   };
 
+  // 이메일 유효성검사
+  const onChangeEmail = () => {
+    const emailRegex =
+      /([\w-.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
+    const email = emailRef.current?.value;
+
+    if (!emailRegex.test(email as string)) {
+      setEmailConfirmMessage("이메일 형식이 다시 확인해주세요!");
+      setIsEmailConfirm(false);
+    } else {
+      setEmailConfirmMessage("");
+      setIsEmailConfirm(true);
+    }
+  };
+
   // 비밀번호
   const onChangePassword = () => {
     const passwordRegex = /^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,25}$/;
     const password = passwordRef.current?.value;
 
     if (!passwordRegex.test(password as string)) {
-      setPasswordMessage("숫자,영문자,특수문자 포함 8자리 이상 입력해주세요!");
+      // setPasswordMessage("숫자,영문자,특수문자 포함 8자리 이상 입력해주세요!");
       setIsPassword(false);
     }
 
@@ -126,8 +151,15 @@ export default function SignUp({ confirmRef, selectUser }: SignUpProps) {
           </div>
           <label className="flex flex-col">
             이메일 *
-            <input type="text" placeholder="asdf123@asdf.vqsd" ref={emailRef} className={stInput} />
-            <p className={stLabel}>이메일은 수정이 불가하니 정확하게 입력하세요.</p>
+            <input
+              type="text"
+              placeholder="asdf123@asdf.vqsd"
+              onChange={onChangeEmail}
+              ref={emailRef}
+              className={stInput}
+            />
+            <p className={stLabel}>{emailConfirmMessage}</p>
+            {/* <p className={stLabel}>이메일은 수정이 불가하니 정확하게 입력하세요.</p> */}
           </label>
           <label className="flex flex-col">
             비밀번호 *

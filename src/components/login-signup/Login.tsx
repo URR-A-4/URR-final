@@ -1,19 +1,18 @@
 "use client";
 
 import { userLogin } from "@/services/users/users.service";
-import { useRouter } from "next/navigation";
 import { useRef } from "react";
 import Image from "next/image";
 import logo from "../../../public/logo/URR_logo.png";
 import Link from "next/link";
 import { createClient } from "../../../supabase/client";
+import { useRouter } from "next/navigation";
 
-export default function Login() {
+const Login = () => {
+  const router = useRouter();
   const stInput = "border border-[#D9D9D9] mb-1 h-[45px] rounded-md indent-2.5";
-
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
-  const router = useRouter();
 
   const loginHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -24,24 +23,22 @@ export default function Login() {
       alert("이메일과 비밀번호를 입력해주세요.");
       return;
     }
-
-    if (email && password) {
-      try {
-        await userLogin({ email, password });
-        router.push("/mypage");
-      } catch (error) {
-        console.log(error);
-      }
+    try {
+      const response = await userLogin({ email, password });
+      window.location.href = "/mypage";
+    } catch (error) {
+      console.log(error);
     }
   };
 
-  // 카카오 회원가입
+  // 카카오 로그인
   const kakaoLoginHandler = async () => {
     const supabase = createClient();
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "kakao",
       options: {
-        redirectTo: "https://urr-final.vercel.app/login/callback"
+        redirectTo: "http://localhost:3000/api/auth/callback"
+        // redirectTo: "https://urr-final.vercel.app/api/auth/callback"
       }
     });
     if (error) {
@@ -83,4 +80,6 @@ export default function Login() {
       </div>
     </>
   );
-}
+};
+
+export default Login;

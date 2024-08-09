@@ -135,9 +135,7 @@ function ProductUpload() {
       category: radioCheckedValue,
       start: startDateRef.current?.value || null,
       end: endDateRef.current?.value || null,
-      // cost: costRef.current?.value ? parseInt(costRef.current?.value) : null,
       cost: parseInt(costRef.current?.value!),
-      // price: priceRef.current?.value ? parseInt(priceRef.current?.value) : null,
       price: parseInt(priceRef.current?.value!),
       product_count: productCountRef.current?.value ? parseInt(productCountRef.current?.value) : null,
       title: titleRef.current?.value || null,
@@ -168,11 +166,36 @@ function ProductUpload() {
     if (error) {
       console.error("Error inserting data:", error);
     } else {
+      alert("상품등록이 완료되었습니다.")
       console.log("Data inserted:", data);
       saveMutation(productData);
       router.push("/products/list");
     }
   };
+
+  const deletePost = async (data: {id:string}) => {
+    const response = await fetch("/api/products", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  };
+
+  const { mutate: deleteMutation } = useMutation<Product, unknown, {id : string}>({
+    mutationFn: (data) => deletePost(data)
+  });
+
+  const handleDelete = async (id: string) => {
+    if (!window.confirm("해당 상품을 삭제하시겠습니까?"))
+      return;
+        deleteMutation({id});
+        router.push("/products/list");
+    }
+  
 
   return (
     <form onSubmit={onSubmit}>
@@ -194,6 +217,11 @@ function ProductUpload() {
           setMainImg={setMainImg}
         />
         <div className="flex justify-end">
+          {id === "new" ? null : (
+            <button type="button" onClick={()=>handleDelete(id as string)} className="bg-red-500 text-white p-2 rounded-sm my-2 mr-5">
+              삭제하기
+            </button>
+          )}
           <button type="submit" className="bg-blue-500 text-white p-2 rounded-sm my-2 mr-5">
             {id === "new" ? "등록하기" : "수정완료"}
           </button>

@@ -11,6 +11,9 @@ const nextConfig = {
       },
       {
         hostname: "search.pstatic.net"
+      },
+      {
+        hostname: "plus.unsplash.com"
       }
     ]
   },
