@@ -4,7 +4,7 @@ import { userSignUp } from "@/services/users/users.service";
 import { Dispatch, SetStateAction, useState } from "react";
 import { nicknameCheck } from "@/services/users/users.service";
 import { StepType } from "@/app/(provider)/(root)/signup/page";
-import WebLoginBg from "../../../public/images/web_login_bg.svg";
+import WebSignupBg2 from "../../../public/images/web_signup_bg2.svg";
 
 interface SignUpProps {
   confirmRef: string | undefined;
@@ -143,11 +143,11 @@ export default function SignUp({ confirmRef, selectUser, setStep }: SignUpProps)
     <>
       <div className="xl:flex xl:flex-row">
         <div className="hidden xl:block bg-cover bg-center">
-          <WebLoginBg className="max-w-full max-h-full" />
+          <WebSignupBg2 className="max-w-full max-h-full" />
         </div>
 
         <div className="flex flex-col justify-between h-screen xl:h-[783px] w-[375px] mx-auto whitespace-nowrap pt-[58px]  p-4">
-          <h2 className="hidden xl:block text-[28px] font-bold text-center mb-[32px]">회원가입</h2>
+          <h2 className="hidden xl:block text-[24px] font-bold text-center mb-[32px]">회원가입</h2>
           <form className="flex flex-col gap-9">
             <div>
               <label className="flex flex-col">

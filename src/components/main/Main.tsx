@@ -4,11 +4,12 @@ import React, { useEffect, useState } from "react";
 import BestProductsList from "./BestProductsList";
 import SubInfluencer from "./SubInfluencer";
 import BestInfluencerList from "./BestInfluencerList";
-import ReviewList from "./ReviewList";
-import Banner from "./swiper/Banner";
 import "./style.css";
 import { Product, Review, User } from "../../../types/common";
 import LoadingUrr from "../common/loading/LoadingUrr";
+import ReviewList from "./ReviewList";
+import Banner from "./swiper/Banner";
+
 
 function Main() {
   const [productsList, setProductsList] = useState<Product[]>([]);
@@ -47,12 +48,11 @@ function Main() {
       }
       const data = await response.json();
       setRatingCount(data);
-      
     } catch (error) {
       console.log("Failed to fetch user data:", error);
     }
   };
-  
+
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
@@ -64,19 +64,23 @@ function Main() {
   }, []);
 
   if (isLoading) {
-    return <LoadingUrr/>;
-  }  
+    return <LoadingUrr />;
+  }
 
   return (
-    <div className="max-w-[1200px] mx-auto flex flex-col gap-y-2 ">
-      <Banner/>
-      <SubInfluencer infUser={infUser} />
-      <hr />
-      <BestProductsList productsList={productsList} ratingCount={ratingCount}/>
-      <BestInfluencerList infUser={infUser} />
-      <ReviewList />
-    </div>
+    <>
+      <Banner />
+      <div className="flex flex-col items-center xl:items-stretch xl:w-[1200px] w-full mx-auto gap-2 xl:px-0">
+        <SubInfluencer infUser={infUser} />
+        <hr className="w-full" />
+        <BestProductsList productsList={productsList} ratingCount={ratingCount} />
+        <BestInfluencerList infUser={infUser} />
+        <ReviewList />
+      </div>
+    </>
   );
+  
+  
 }
 
 export default Main;

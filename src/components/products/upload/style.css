@@ -3,7 +3,7 @@ summary::-webkit-details-marker {
 }
 summary {
   display: block;
-  padding: 2rem 3rem 2rem 0;
+  padding: 22px 0;
   cursor: pointer;
   position: relative;
 }
@@ -11,11 +11,11 @@ summary::before,
 summary::after {
   content: "";
   position: absolute;
-  width: 1rem;
+  width: 14px;
   height: 2px;
   background-color: #222;
   right: 1rem;
-  top: 2.5rem;
+  top: 2rem;
 }
 summary::after {
   transform: rotateZ(90deg);
@@ -78,4 +78,13 @@ input[type="number"] {
   [type="date"] {
     font-size: 13px;
   }
+}
+
+.swal-button {
+  padding: 7px 19px;
+  border-radius: 2px;
+  background-color: #1A82FF;
+  font-size: 12px;
+  border: 1px solid #0068E5;
+  text-shadow: 0px -1px 0px rgba(0, 0, 0, 0.3);
 }

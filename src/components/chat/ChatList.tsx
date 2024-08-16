@@ -5,15 +5,17 @@ import { createClient } from "../../../supabase/client";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useAlertchatStore } from "@/zustand/alertchatStore";
 
 export default function ChatList() {
   const userdata = useUserData().data;
   const supabase = createClient();
   const router = useRouter();
 
-  const [chatListData, setChatListData] = useState<({ channel_id: number; channel_name: string | null; owner_id: string; owner_profile_url: string | null; created_at: string; message: string | null; } | undefined)[]>([]);
-  const [myChannel, setMyChannel] = useState<{ channel_id: number; channel_name: string | null; owner_id: string; owner_profile_url: string | null; created_at: string; message: string | null; } | null>(null);
-  const [channelIdList, setChannelIdList] = useState<number[]>([]);
+  const [chatListData, setChatListData] = useState<({ channel_id: number; channel_name: string | null; owner_id: string; owner_profile_url: string | null; created_at: string; message: string | null; countMessages: number; } | undefined)[]>([]);
+  const [myChannel, setMyChannel] = useState<{ channel_id: number; channel_name: string | null; owner_id: string; owner_profile_url: string | null; created_at: string; message: string | null; countMessages: number; } | null>(null);
+  const [myChannelIdList, setMyChannelIdList] = useState<number[]>([]);
+  const { setIsAlert } = useAlertchatStore();
 
   const getMyChannel = async () => {
     //나의 채팅 채널 불러오기
@@ -24,6 +26,7 @@ export default function ChatList() {
       .eq('owner_id', user_id)
       .single()
     if (data) {
+      const countMessages = await countUnreadMessages(data.last_time, data.channel_id, data.owner_id);
       const response = await getlastMessage(data.channel_id, data.owner_id);
       if (response?.time != undefined && response?.message != undefined) {
         const channel_data = {
@@ -32,22 +35,57 @@ export default function ChatList() {
           owner_id: data.owner_id,
           owner_profile_url: data.owner_profile_url,
           created_at: response?.time,
-          message: response?.message
+          message: response?.message,
+          countMessages
         }
         setMyChannel(channel_data);
-        setChannelIdList((pre) => {
-          return [
-            ...pre,
-            data.channel_id
-          ]
+        setMyChannelIdList((pre) => {
+          return [...pre, data.channel_id]
         })
       }
 
     }
   }
 
-  const matchLastMessage = () => {
+  const countUnreadMessages = async (last_time: string, channel_id: number, owner_id: string): Promise<number> => {
+    const user_id = await userdata.id;
+    if (owner_id === user_id) {
+      //채널주
+      const { count, error } = await supabase
+        .from('chat_messages')
+        .select('*', { count: 'exact', head: true })
+        .eq("channel_id", channel_id)
+        .gt('created_at', last_time);
 
+      if (error) {
+        console.log(error)
+        return 0;
+      }
+      if (!count) {
+        return 0;
+      } else {
+        return count;
+
+      }
+    } else {
+      //팬
+      const { data, count, error } = await supabase
+        .from('chat_messages')
+        .select('*', { count: 'exact', head: true })
+        .eq("channel_id", channel_id)
+        .in("user_id", [user_id, owner_id])
+        .gt('created_at', last_time);
+      if (error) {
+        console.log(error)
+        return 0;
+      }
+      if (!count) {
+        return 0;
+      } else {
+        return count;
+
+      }
+    }
   }
 
   const getChatList = async () => {
@@ -62,22 +100,22 @@ export default function ChatList() {
       .select(`
         created_at,
         channel_id,
+        last_time,
         chat_channels(
           *
         )
         `)
       .eq('user_id', user_id)
+      .order('last_time', { ascending: false })
 
     if (data) {
       const channelListDatas = await Promise.all(data.map(async (subscribe) => {
         if (subscribe.chat_channels) {
+          const countMessages = await countUnreadMessages(subscribe.last_time, subscribe.channel_id, subscribe.chat_channels.owner_id);
           const response = await getlastMessage(subscribe.channel_id, subscribe.chat_channels.owner_id);
           if (response?.time != undefined && response.message != undefined) {
-            setChannelIdList((pre) => {
-              return [
-                ...pre,
-                subscribe.channel_id
-              ]
+            setMyChannelIdList((pre) => {
+              return [...pre, subscribe.channel_id]
             })
             return {
               channel_id: subscribe.channel_id,
@@ -85,7 +123,8 @@ export default function ChatList() {
               owner_id: subscribe.chat_channels.owner_id,
               owner_profile_url: subscribe.chat_channels.owner_profile_url,
               created_at: response.time,
-              message: response.message
+              message: response.message,
+              countMessages
             }
           }
         }
@@ -118,12 +157,14 @@ export default function ChatList() {
       }
     } else {
       //팬
+      const created_at_time = await checkMySubCreatedAtTime(channel_id);
       const { data, error } = await supabase
         .from('chat_messages')
         .select('*')
         .eq("channel_id", channel_id)
         .in("user_id", [user_id, owner_id])
         .order('created_at', { ascending: false })
+        .gt('created_at', created_at_time)
         .limit(1)
         .maybeSingle();
       if (!data) {
@@ -136,6 +177,22 @@ export default function ChatList() {
     }
   }
 
+  const checkMySubCreatedAtTime = async (channel_id: number): Promise<String | null> => {
+    const user_id = await userdata.id;
+    const { data, error } = await supabase
+      .from("chat_subscribe")
+      .select("created_at")
+      .eq("channel_id", channel_id)
+      .eq("user_id", user_id)
+      .single();
+    if (error) {
+      console.log(error);
+      return null;
+    } else {
+      return data.created_at;
+    }
+  };
+
   //실시간
   const receiveChatMessage = async () => {
     const user_id = await userdata.id;
@@ -147,7 +204,7 @@ export default function ChatList() {
           event: "INSERT",
           schema: "public",
           table: "chat_messages",
-          filter: `channel_id=in.(${channelIdList})`
+          filter: `channel_id=in.(${myChannelIdList})`
         },
         (payload) => {
           const newMessage = payload.new;
@@ -157,17 +214,19 @@ export default function ChatList() {
             setMyChannel({
               ...myChannel,
               created_at: time,
-              message: message
+              message: message,
+              countMessages: ++myChannel.countMessages
             })
           } else {
-            if (chatListData) {
+            if(chatListData){
               setChatListData(chatListData?.map((pre) => {
                 if (pre) {
                   if (pre?.channel_id === newMessage.channel_id && (newMessage.user_id === user_id || newMessage.user_id === pre?.owner_id)) {
                     return {
                       ...pre,
                       created_at: time,
-                      message: message
+                      message: message,
+                      countMessages: ++pre.countMessages
                     }
                   } else {
                     return pre;
@@ -175,6 +234,7 @@ export default function ChatList() {
                 }
               }))
             }
+
           }
         }
       )
@@ -187,6 +247,7 @@ export default function ChatList() {
   }
 
   useEffect(() => {
+    setIsAlert(false);
     if (userdata != undefined) {
       getChatList();
     }
@@ -196,7 +257,7 @@ export default function ChatList() {
     if (userdata != undefined) {
       receiveChatMessage();
     }
-  }, [channelIdList])
+  }, [myChannelIdList])
 
 
   return (
@@ -206,7 +267,7 @@ export default function ChatList() {
           <p className="w-[343px] mx-auto font-bold text-[20px] mt-[18px] mb-[12px]">내가 만든 톡방</p>
           <div className="w-[343px] mx-auto flex flex-col justify-center">
             <div onClick={() => clickChat(myChannel.channel_id)}>
-              <div key={myChannel.channel_id} className={(myChannel != null) ? "w-[343px] h-[73px] relative flex flex-row" : 'hidden'}>
+              <div key={myChannel.channel_id} className={(myChannel != null) ? "w-[343px] h-[73px] relative flex flex-row items-center" : 'hidden'}>
 
                 <div className="relative flex-none w-[68px] h-[68px]">
                   {myChannel.owner_profile_url && (
@@ -214,7 +275,12 @@ export default function ChatList() {
                   )}
                 </div>
                 <div className="w-[255px] flex flex-col ml-[8px] mr-[12px]">
-                  <label className="truncate text-[18px] font-medium">{myChannel.channel_name}</label>
+                  <div className="flex flex-row items-center h-[27px]">
+                    <label className="truncate text-[18px] font-medium">{myChannel.channel_name}</label>
+                    <label className={(myChannel.countMessages > 0) ? "ml-[7px] rounded-[14px] text-white w-[36px] h-[20px] bg-gradient-to-br from-[#0068e5] to-[#9aec5b] text-center text-[14px] font-medium" : "hidden"}>
+                      {(myChannel.countMessages < 100) ? `${myChannel.countMessages}` : `99+`}
+                    </label>
+                  </div>
                   <label className="truncate text-[16px] font-light">{myChannel.message}</label>
                   <label className="text-[12px] font-normal text-[#989C9F]">{myChannel?.created_at}</label>
                 </div>
@@ -238,7 +304,12 @@ export default function ChatList() {
                     )}
                   </div>
                   <div className="w-[255px] flex flex-col ml-[8px] mr-[12px]">
-                    <label className="truncate text-[18px] font-medium">{channel.channel_name}</label>
+                    <div className="flex flex-row items-center h-[27px]">
+                      <label className="truncate text-[18px] font-medium">{channel.channel_name}</label>
+                      <label className={(channel.countMessages > 0) ? "ml-[7px] rounded-[14px] text-white w-[36px] h-[20px] bg-[#FF5E5E] text-center text-[14px] font-medium" : "hidden"}>
+                        {(channel.countMessages < 100) ? `${channel.countMessages}` : `99+`}
+                      </label>
+                    </div>
                     <label className="truncate text-[16px] font-light">{channel.message}</label>
                     <label className="text-[12px] font-normal text-[#989C9F]">{channel?.created_at}</label>
                   </div>

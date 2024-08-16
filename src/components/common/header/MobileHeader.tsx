@@ -7,16 +7,17 @@ import BackIcon from "../../../../public/icon/backIcon.svg";
 import SearchIcon from "../../../../public/icon/searchIcon.svg";
 import CartIcon from "../../../../public/icon/cartIcon.svg";
 import XIcon from "../../../../public/icon/XIcon.svg";
+import AddProductIcon from "../../../../public/icon/addProductIcon.svg";
 import { useState } from "react";
 import SearchModal from "../search/SearchModal";
-import { useAddrStore } from "@/zustand/addrStore";
+import { useUserData } from "@/hooks/useUserData";
 
 const MobileHeader = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const pathname = usePathname();
   const router = useRouter();
-  // const {setRefContent}=useAddrStore();
+  const { data: user } = useUserData();
 
   const HOME = pathname === "/";
   const ADMIN = pathname === "/admin";
@@ -24,11 +25,18 @@ const MobileHeader = () => {
   const PRODUCTS_LIST = pathname === "/products/list";
   const MY_PAGE = pathname === "/mypage";
   const SIGN_UP = pathname === "/signup";
-  const PRODUCTS_UPLOAD = pathname === "/products/upload";
+  const PRODUCTS_UPLOAD = pathname === "/products/upload/new";
   const SEARCH = pathname === "/search";
   const PAYMENT = pathname === "/payment";
   const CHATLIST = pathname === "/chatlist";
   const INFLUENCER = pathname === "/influencer";
+
+  const isInfluncer = () => {
+    if (user?.approve) {
+      return true;
+    }
+    return false;
+  };
 
   // header 타이틀
   let headerTitle;
@@ -92,15 +100,29 @@ const MobileHeader = () => {
     );
   }
 
+  if (MY_PAGE) {
+    if (() => isInfluncer()) {
+      rightIcon = (
+        <>
+          <Link href={"/products/upload/new"}>
+            <AddProductIcon />
+          </Link>
+          <Link href={"/cart"}>
+            <CartIcon />
+          </Link>
+        </>
+      );
+    }
+  }
+
   return (
     <>
-      <header className="flex flex-row justify-between items-center h-[50px] w-full mx-auto shrink-0 sticky top-0 bg-white z-50 px-[5%] py-[6px]">
+      <header className="flex flex-row justify-between items-center h-[52px] w-full mx-auto shrink-0 sticky top-0 bg-white z-50 px-[5%] pt-[10px] pb-[6px]">
         <div className="h-full min-w-[32px] p-[4px] flex justify-center items-center">{leftIcon}</div>
         <div className="font-semibold text-xl">{headerTitle}</div>
         <div className="flex gap-2 p-[4px]">{rightIcon}</div>
       </header>
-      <div>
-      </div>
+      <div></div>
       {isModalOpen && (
         <div
           className={`modal-overlay ${isModalVisible ? "visible" : ""}`}
