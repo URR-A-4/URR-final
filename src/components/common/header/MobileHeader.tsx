@@ -31,10 +31,11 @@ const MobileHeader = () => {
   const PAYMENT = pathname === "/payment";
   const CHATLIST = pathname === "/chatlist";
   const INFLUENCER = pathname === "/influencer";
+  // const PRODUCTS_DETAIL = pathname === `/products/detail/${id}`;
   const { setActiveMenu } = useMenuStore();
 
   const isInfluncer = () => {
-    if (user?.approve) {
+    if (user?.approve === true) {
       return true;
     }
     return false;
