@@ -224,7 +224,7 @@ const WrittenMyReview = () => {
           <p className={isDesktop ? "text-[16px]" : "text-[14px]"}>
             제품에 대한 <span className="text-[#0051B2] font-semibold">사용감, 맛, 향, 첫인상</span> 등을 설명해주세요
             <br />
-            <span className="font-semibold text-[16px]">사진</span>을 통해 상품에 대한 감상을 같이 작성하면, 후기에 대한 신뢰도를 더 높일 수 있습니다
+            <span className="font-semibold text-[15px]">사진</span>을 통해 상품에 대한 감상을 같이 작성하면, 후기에 대한 신뢰도를 더 높일 수 있습니다
           </p>
         </div>
         <textarea
@@ -262,7 +262,7 @@ const WrittenMyReview = () => {
       {!isDesktop ? (
         <div className="w-full xl:w-[60%] p-4 mx-auto xl:hidden">{content}</div>
       ) : (
-        <div className="xl:h-[calc(100vh-278px)] ">
+        <div className="xl:h-[calc(100vh-318px)] ">
           <div className="fixed inset-0 z-50 flex items-center justify-center w-full bg-black bg-opacity-50">
             <div className="relative p-4 w-[650px] h-auto bg-white rounded-lg shadow-lg overflow-y-auto">{content}</div>
           </div>
