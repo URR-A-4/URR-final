@@ -9,8 +9,8 @@ export const useLoadOrders = (userId: string) => {
     queryFn: ({ pageParam }) => getInfiniteOrders(userId, pageParam),
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) => {
-      if (lastPage.length < 5) return undefined;
-      return allPages.length * 5;
+      if (lastPage.length < 9) return undefined;
+      return allPages.length * 9;
     }
   });
 };
@@ -21,8 +21,8 @@ export const useLoadReviews = (userId: string) => {
     queryFn: ({ pageParam }) => getInfiniteReviews(userId, pageParam),
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) => {
-      if (lastPage.length < 5) return undefined;
-      return allPages.length * 5;
+      if (lastPage.length < 9) return undefined;
+      return allPages.length * 9;
     }
   });
 };

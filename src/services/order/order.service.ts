@@ -25,7 +25,7 @@ export const getInfiniteOrders = async (userId: string, pageParam: unknown): Pro
     .from("order")
     .select("*")
     .eq("userId", userId)
-    .range(pageParam as number, (pageParam as number) + 4);
+    .range(pageParam as number, (pageParam as number) + 8);
   if (error) {
     console.error("Error fetching order list in service.ts:", error);
   }

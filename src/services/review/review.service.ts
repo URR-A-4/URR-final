@@ -28,7 +28,7 @@ export const getInfiniteReviews = async (userId: string, pageParam: unknown): Pr
     .from("product_review")
     .select("*")
     .eq("userId", userId)
-    .range(pageParam as number, (pageParam as number) + 4);
+    .range(pageParam as number, (pageParam as number) + 8);
   if (error) {
     console.error("Error fetching review list in service.ts:", error);
   }
