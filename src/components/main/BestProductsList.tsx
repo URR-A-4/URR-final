@@ -47,6 +47,7 @@ function BestProductsList({ productsList, ratingCount }: { productsList: Product
                       src={list.main_img || defaultImg}
                       alt="img"
                       fill
+                      priority
                       sizes="121px xl:200px"
                       className="rounded-md object-cover"
                     />

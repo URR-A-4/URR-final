@@ -121,6 +121,8 @@ function MainReviewList() {
                           alt="img"
                           fill
                           sizes="276px"
+                          priority
+                          quality={90}
                           className="rounded-md object-cover"
                         />
                       </div>

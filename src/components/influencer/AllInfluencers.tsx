@@ -22,6 +22,17 @@ function AllInfluencers() {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
+  useEffect(() => {
+    const fetchData = async () => {
+      if (user) {
+        await getSubscribeData();
+      }
+      setIsLoading(false);
+    };
+
+    fetchData();
+  }, [user]);
+
   const getSubscribeData = async () => {
     try {
       if (!user) return;
@@ -42,17 +53,6 @@ function AllInfluencers() {
     queryKey: ["user"],
     queryFn: () => getInfluencerData()
   });
-
-  useEffect(() => {
-    const fetchData = async () => {
-      if (user) {
-        await getSubscribeData();
-      }
-      setIsLoading(false);
-    };
-
-    fetchData();
-  }, [user]);
 
   const subscribeHandler = (e: MouseEvent<HTMLButtonElement>, inf: User) => {
     e.stopPropagation();
@@ -101,7 +101,7 @@ function AllInfluencers() {
       body: JSON.stringify(data)
     });
     swal("구독이 취소되었습니다.");
-    await getSubscribeData();
+    setSubscribeIds((prev) => prev.filter((id) => id !== data.infuser_id));
     return response.json();
   };
 
@@ -112,6 +112,9 @@ function AllInfluencers() {
   if (isLoading) {
     return <LoadingUrr />;
   }
+
+  console.log(subscribeIds);
+  
 
   return (
     <div className="w-full xl:w-[1200px] bg-[#F4F4F4] mx-auto">
